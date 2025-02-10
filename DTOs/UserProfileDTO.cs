@@ -1,18 +1,16 @@
+namespace Tabloid.DTOs;
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 
-namespace Tabloid.Models;
-
-public class UserProfile
+public class UserProfileDTO
 {
     public int Id { get; set; }
 
-    [Required]
     [MaxLength(50)]
     public string FirstName { get; set; }
 
-    [Required]
     [MaxLength(50)]
     public string LastName { get; set; }
 
@@ -31,16 +29,13 @@ public class UserProfile
     [NotMapped]
     public List<string> Roles { get; set; }
 
-    public List<Post> Posts { get; set; } = new();
+    public List<PostDTO> Posts { get; set; } = new();
 
-    public List<Comment> Comments { get; set; } = new();
+    public List<CommentDTO> Comments { get; set; } = new();
 
     public string IdentityUserId { get; set; }
 
     public IdentityUser IdentityUser { get; set; }
 
-    public string FullName
-    {
-        get { return $"{FirstName} {LastName}"; }
-    }
+    public string FullName { get; set; }
 }
