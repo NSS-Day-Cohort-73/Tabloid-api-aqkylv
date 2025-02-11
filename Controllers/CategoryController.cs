@@ -51,4 +51,34 @@ public class CategoryController : ControllerBase
         _context.SaveChanges();
         return CreatedAtAction(nameof(GetById), new { id = category.Id }, categoryDTO);
     }
+
+    //DELETE a category
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public IActionResult Delete(int id)
+    {
+        var category = _context.Categories.SingleOrDefault(c => c.Id == id);
+        if (category == null)
+        {
+            return NotFound();
+        }
+        _context.Categories.Remove(category);
+        _context.SaveChanges();
+        return NoContent();
+    }
+
+    //PUT a category
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
+    public IActionResult Put(int id, [FromBody] CategoryDTO categoryDTO)
+    {
+        var category = _context.Categories.SingleOrDefault(c => c.Id == id);
+        if (category == null)
+        {
+            return NotFound();
+        }
+        category.Name = categoryDTO.Name;
+        _context.SaveChanges();
+        return NoContent();
+    }
 }
