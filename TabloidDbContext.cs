@@ -10,6 +10,14 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
     private readonly IConfiguration _configuration;
 
     public DbSet<UserProfile> UserProfiles { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<Reaction> Reactions { get; set; }
+    public DbSet<Tag> Tags { get; set; }
+    public DbSet<Post> Posts { get; set; }
+    public DbSet<Comment> Comments { get; set; }
+    public DbSet<Subscription> Subscriptions { get; set; }
+    public DbSet<PostTag> PostTags { get; set; }
+    public DbSet<PostReaction> PostReactions { get; set; }
 
     public TabloidDbContext(DbContextOptions<TabloidDbContext> context, IConfiguration config)
         : base(context)
