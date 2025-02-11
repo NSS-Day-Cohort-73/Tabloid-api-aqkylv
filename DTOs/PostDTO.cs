@@ -30,4 +30,6 @@ public class PostDTO
     public List<CommentDTO> Comments = new();
     public List<ReactionDTO> Reactions = new();
     public List<TagDTO> Tags = new();
+
+    public bool IsApproved { get; set; } = false;
 }
