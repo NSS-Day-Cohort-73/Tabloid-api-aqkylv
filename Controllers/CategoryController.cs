@@ -51,4 +51,19 @@ public class CategoryController : ControllerBase
         _context.SaveChanges();
         return CreatedAtAction(nameof(GetById), new { id = category.Id }, categoryDTO);
     }
+
+    //DELETE a category
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public IActionResult Delete(int id)
+    {
+        var category = _context.Categories.SingleOrDefault(c => c.Id == id);
+        if (category == null)
+        {
+            return NotFound();
+        }
+        _context.Categories.Remove(category);
+        _context.SaveChanges();
+        return NoContent();
+    }
 }
