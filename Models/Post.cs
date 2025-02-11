@@ -39,4 +39,6 @@ public class Post
 
     public List<PostReaction> PostReactions = new();
     public List<Tag> Tags = new();
+
+    public bool IsApproved { get; set; } = false;
 }
