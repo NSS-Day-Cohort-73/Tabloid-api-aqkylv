@@ -1,15 +1,14 @@
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using System.Text;
-using Tabloid.Models;
 using Tabloid.Data;
+using Tabloid.Models;
 
 namespace Tabloid.Controllers;
-
 
 [ApiController]
 [Route("api/[controller]")]
@@ -31,8 +30,8 @@ public class AuthController : ControllerBase
         {
             string encodedCreds = authHeader.Substring(6).Trim();
             string creds = Encoding
-            .GetEncoding("iso-8859-1")
-            .GetString(Convert.FromBase64String(encodedCreds));
+                .GetEncoding("iso-8859-1")
+                .GetString(Convert.FromBase64String(encodedCreds));
 
             // Get email and password
             int separator = creds.IndexOf(':');
@@ -49,8 +48,7 @@ public class AuthController : ControllerBase
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Name, user.UserName.ToString()),
-                    new Claim(ClaimTypes.Email, user.Email)
-
+                    new Claim(ClaimTypes.Email, user.Email),
                 };
 
                 foreach (var userRole in userRoles)
@@ -59,11 +57,17 @@ public class AuthController : ControllerBase
                     claims.Add(new Claim(ClaimTypes.Role, role.Name));
                 }
 
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var claimsIdentity = new ClaimsIdentity(
+                    claims,
+                    CookieAuthenticationDefaults.AuthenticationScheme
+                );
 
-                HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity)).Wait();
+                HttpContext
+                    .SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity)
+                    )
+                    .Wait();
 
                 return Ok();
             }
@@ -97,7 +101,9 @@ public class AuthController : ControllerBase
     public IActionResult Me()
     {
         var identityUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var profile = _dbContext.UserProfiles.SingleOrDefault(up => up.IdentityUserId == identityUserId);
+        var profile = _dbContext.UserProfiles.SingleOrDefault(up =>
+            up.IdentityUserId == identityUserId
+        );
         var roles = User.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();
         if (profile != null)
         {
@@ -115,7 +121,7 @@ public class AuthController : ControllerBase
         var user = new IdentityUser
         {
             UserName = registration.UserName,
-            Email = registration.Email
+            Email = registration.Email,
         };
 
         var password = Encoding
@@ -125,28 +131,35 @@ public class AuthController : ControllerBase
         var result = await _userManager.CreateAsync(user, password);
         if (result.Succeeded)
         {
-            _dbContext.UserProfiles.Add(new UserProfile
-            {
-                FirstName = registration.FirstName,
-                LastName = registration.LastName,
-                ImageLocation = registration.ImageLocation,
-                CreateDateTime = DateTime.Now,
-                IdentityUserId = user.Id,
-            });
+            _dbContext.UserProfiles.Add(
+                new UserProfile
+                {
+                    FirstName = registration.FirstName,
+                    LastName = registration.LastName,
+                    ImageLocation = registration.ImageLocation,
+                    CreateDateTime = DateTime.Now,
+                    IdentityUserId = user.Id,
+                }
+            );
             _dbContext.SaveChanges();
 
             var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName.ToString()),
-                    new Claim(ClaimTypes.Email, user.Email)
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+            };
+            var claimsIdentity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme
+            );
 
-                };
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(claimsIdentity)).Wait();
+            HttpContext
+                .SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity)
+                )
+                .Wait();
 
             return Ok();
         }
