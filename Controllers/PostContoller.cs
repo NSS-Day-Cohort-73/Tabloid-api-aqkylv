@@ -41,4 +41,41 @@ public class PostController : ControllerBase
 
         return Ok(posts);
     }
+
+    [HttpGet("{id}")]
+    //[Authorize]
+    public IActionResult GetPost(int id)
+    {
+        var post = _dbContext
+            .Posts.Include(p => p.Author)
+            .Include(p => p.Category)
+            .SingleOrDefault(p => p.Id == id);
+
+        if (post == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(post);
+    }
+
+    [HttpPost]
+    //[Authorize]
+    public IActionResult Post(CreatePostDTO postDTO)
+    {
+        Post post = new Post
+        {
+            Title = postDTO.Title,
+            Content = postDTO.Content,
+            CategoryId = postDTO.CategoryId,
+            AuthorId = postDTO.AuthorId,
+            PublishingDate = DateTime.Now,
+            SubTitle = postDTO.SubTitle,
+            IsApproved = true,
+        };
+
+        _dbContext.Posts.Add(post);
+        _dbContext.SaveChanges();
+        return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
+    }
 }
