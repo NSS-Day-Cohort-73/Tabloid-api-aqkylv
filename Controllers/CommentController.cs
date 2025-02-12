@@ -24,7 +24,10 @@ public class CommentController : ControllerBase
     public IActionResult Get([FromQuery] int? postId)
     {
         // Start with the base query
-        var commentsQuery = _context.Comments.Include(c => c.Author).AsQueryable();
+        var commentsQuery = _context
+            .Comments.Include(c => c.Author)
+            .Include(c => c.Post)
+            .AsQueryable();
 
         // Apply filter if postId is provided
         if (postId.HasValue)
@@ -46,6 +49,7 @@ public class CommentController : ControllerBase
                     UserName = c.Author.UserName,
                 },
                 PostId = c.PostId,
+                Post = new PostDTO { Id = c.Post.Id, Title = c.Post.Title },
                 Subject = c.Subject,
                 Content = c.Content,
                 CreationDate = c.CreationDate,
