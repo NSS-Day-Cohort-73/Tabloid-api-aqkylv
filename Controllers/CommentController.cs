@@ -18,27 +18,40 @@ public class CommentController : ControllerBase
         _context = context;
     }
 
-    //GET all comments
+    // GET all comments (or filter by postId if provided), ordered by most recent
     [HttpGet]
     [Authorize]
-    public IActionResult Get()
+    public IActionResult Get([FromQuery] int? postId)
     {
-        var comments = _context.Comments.Include(c => c.Author);
-        var commentsDTO = comments.Select(c => new CommentDTO
+        // Start with the base query
+        var commentsQuery = _context.Comments.Include(c => c.Author).AsQueryable();
+
+        // Apply filter if postId is provided
+        if (postId.HasValue)
         {
-            Id = c.Id,
-            AuthorId = c.AuthorId,
-            Author = new UserProfileDTO
+            commentsQuery = commentsQuery.Where(c => c.PostId == postId.Value);
+        }
+
+        // Order by most recent first (descending)
+        var commentsDTO = commentsQuery
+            .OrderByDescending(c => c.CreationDate)
+            .Select(c => new CommentDTO
             {
-                Id = c.Author.Id,
-                FullName = c.Author.FullName,
-                UserName = c.Author.UserName,
-            },
-            PostId = c.PostId,
-            Subject = c.Subject,
-            Content = c.Content,
-            CreationDate = c.CreationDate,
-        });
+                Id = c.Id,
+                AuthorId = c.AuthorId,
+                Author = new UserProfileDTO
+                {
+                    Id = c.Author.Id,
+                    FullName = c.Author.FullName,
+                    UserName = c.Author.UserName,
+                },
+                PostId = c.PostId,
+                Subject = c.Subject,
+                Content = c.Content,
+                CreationDate = c.CreationDate,
+            })
+            .ToList();
+
         return Ok(commentsDTO);
     }
 
