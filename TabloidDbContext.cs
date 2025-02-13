@@ -134,6 +134,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     LastName = "Strator",
                     ImageLocation = "https://robohash.org/numquamutut.png?size=150x150&set=set1",
                     CreateDateTime = new DateTime(2022, 1, 25),
+                    IsActive = true
                 },
                 new UserProfile
                 {
@@ -143,6 +144,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     LastName = "Doe",
                     ImageLocation = "https://robohash.org/nisiautemet.png?size=150x150&set=set1",
                     CreateDateTime = new DateTime(2023, 2, 2),
+                    IsActive = true
                 },
                 new UserProfile
                 {
@@ -153,6 +155,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     ImageLocation =
                         "https://robohash.org/molestiaemagnamet.png?size=150x150&set=set1",
                     CreateDateTime = new DateTime(2022, 3, 15),
+                    IsActive = true
                 },
                 new UserProfile
                 {
@@ -163,6 +166,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     ImageLocation =
                         "https://robohash.org/deseruntutipsum.png?size=150x150&set=set1",
                     CreateDateTime = new DateTime(2023, 6, 10),
+                    IsActive = true
                 },
                 new UserProfile
                 {
@@ -173,6 +177,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     ImageLocation =
                         "https://robohash.org/quiundedignissimos.png?size=150x150&set=set1",
                     CreateDateTime = new DateTime(2023, 5, 15),
+                    IsActive = true
                 },
                 new UserProfile
                 {
@@ -182,6 +187,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     LastName = "Davis",
                     ImageLocation = "https://robohash.org/hicnihilipsa.png?size=150x150&set=set1",
                     CreateDateTime = new DateTime(2022, 10, 18),
+                    IsActive = true
                 }
             );
 

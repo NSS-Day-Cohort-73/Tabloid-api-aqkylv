@@ -38,4 +38,6 @@ public class UserProfileDTO
     public IdentityUser IdentityUser { get; set; }
 
     public string FullName { get; set; }
+
+    public Boolean IsActive { get; set; }
 }
