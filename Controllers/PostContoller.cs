@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tabloid.Data;
@@ -40,5 +42,60 @@ public class PostController : ControllerBase
             .ToList();
 
         return Ok(posts);
+    }
+
+    [HttpGet("{id}")]
+    //[Authorize]
+    public IActionResult GetById(int id)
+    {
+        var postById = _dbContext
+            .Posts.Include(p => p.Author)
+            .ThenInclude(a => a.IdentityUser)
+            .SingleOrDefault(p => p.Id == id);
+
+        if (postById == null)
+        {
+            return NotFound();
+        }
+        var thisPost = new GetPostByIdDTO
+        {
+            Id = postById.Id,
+            Title = postById.Title,
+            PublishingDate = postById.PublishingDate,
+            Content = postById.Content,
+            HeaderImage = postById.HeaderImage,
+            AuthorId = postById.AuthorId,
+            Author = new UserProfileForPostByIdDTO
+            {
+                Id = postById.Author.Id,
+                IdentityUser = new IdentityUserDTO
+                {
+                    Id = postById.Author.IdentityUser.Id,
+                    UserName = postById.Author.IdentityUser.UserName,
+                },
+            },
+        };
+
+        return Ok(thisPost);
+    }
+
+    [HttpPost]
+    //[Authorize]
+    public IActionResult Post(CreatePostDTO postDTO)
+    {
+        Post post = new Post
+        {
+            Title = postDTO.Title,
+            Content = postDTO.Content,
+            CategoryId = postDTO.CategoryId,
+            AuthorId = postDTO.AuthorId,
+            PublishingDate = DateTime.Now,
+            SubTitle = postDTO.SubTitle,
+            IsApproved = true,
+        };
+
+        _dbContext.Posts.Add(post);
+        _dbContext.SaveChanges();
+        return CreatedAtAction(nameof(GetById), new { id = post.Id }, post);
     }
 }
