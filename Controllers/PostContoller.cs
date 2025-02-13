@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Net.NetworkInformation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -97,5 +98,21 @@ public class PostController : ControllerBase
         _dbContext.Posts.Add(post);
         _dbContext.SaveChanges();
         return CreatedAtAction(nameof(GetById), new { id = post.Id }, post);
+    }
+
+    [HttpDelete("{id}")]
+    //[Authorize]
+    public IActionResult Delete(int id)
+    {
+        Post post = _dbContext.Posts.SingleOrDefault(p => p.Id == id);
+
+        if (post == null)
+        {
+            return NotFound("There Post Id does not exist");
+        }
+
+        _dbContext.Posts.Remove(post);
+        _dbContext.SaveChanges();
+        return NoContent();
     }
 }
