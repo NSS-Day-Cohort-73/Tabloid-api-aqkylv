@@ -43,4 +43,6 @@ public class UserProfile
     {
         get { return $"{FirstName} {LastName}"; }
     }
+
+    public bool IsActive { get; set; } = true;
 }

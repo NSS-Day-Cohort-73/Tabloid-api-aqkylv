@@ -44,6 +44,7 @@ public class UserProfileController : ControllerBase
                         .UserRoles.Where(ur => ur.UserId == up.IdentityUserId)
                         .Select(ur => _dbContext.Roles.SingleOrDefault(r => r.Id == ur.RoleId).Name)
                         .ToList(),
+                    IsActive = up.IsActive
                 })
         );
     }
@@ -94,4 +95,53 @@ public class UserProfileController : ControllerBase
         
         return Ok(user);
     }
+
+[HttpPost("deactivate/{id}")]
+[Authorize(Roles = "Admin")]
+public IActionResult DeactivateAccount(int id)
+{
+    // Find the user profile by ID
+    var userProfile = _dbContext.UserProfiles.SingleOrDefault(up => up.Id == id);
+
+    if (userProfile == null)
+    {
+        return NotFound("User not found.");
+    }
+
+    // Debug: Log current state of IsActive before update
+    Console.WriteLine($"Deactivating user with ID {id}. Current IsActive: {userProfile.IsActive}");
+
+    // Set IsActive to false to deactivate the account
+    userProfile.IsActive = false; // Adjust to your property type, e.g., bool or string as required
+
+    // Save changes
+    _dbContext.SaveChanges();
+
+    // Debug: Log after saving changes
+    Console.WriteLine($"User with ID {id} deactivated. New IsActive: {userProfile.IsActive}");
+
+    return NoContent(); // Success response
 }
+
+
+    [HttpPost("reactivate/{id}")]
+    [Authorize(Roles = "Admin")]
+    public IActionResult ReactivateAccount(int id)
+    {
+        // Find the user profile by ID
+        var userProfile = _dbContext.UserProfiles.SingleOrDefault(up => up.Id == id);
+        
+        if (userProfile == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        // Set IsActive to true to reactivate the account
+        userProfile.IsActive = true; // Adjust to your property type, e.g., bool or string as required
+        _dbContext.SaveChanges();
+        
+        return NoContent(); // Success response
+    }
+
+}
+
