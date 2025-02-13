@@ -33,7 +33,18 @@ public class Post
     public string Content { get; set; }
 
     [NotMapped]
-    public int ReadTime => (int)Math.Ceiling((double)Content.Length / 500);
+    public int ReadTime => (int)Math.Ceiling((double)GetWordCount(Content) / 265);
+
+    private static int GetWordCount(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return 0;
+
+        return text.Split(
+            new[] { ' ', '\n', '\r', '\t' },
+            StringSplitOptions.RemoveEmptyEntries
+        ).Length;
+    }
 
     public List<Comment> Comments = new();
 
