@@ -64,7 +64,10 @@ public class CommentController : ControllerBase
     [Authorize]
     public IActionResult GetById(int id)
     {
-        var comment = _context.Comments.SingleOrDefault(c => c.Id == id);
+        var comment = _context
+            .Comments.Include(c => c.Author)
+            .Include(c => c.Post)
+            .SingleOrDefault(c => c.Id == id);
         if (comment == null)
         {
             return NotFound();
