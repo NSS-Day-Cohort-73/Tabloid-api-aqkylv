@@ -104,10 +104,10 @@ public class PostController : ControllerBase
     //[Authorize]
     public IActionResult Delete(int id)
     {
-        Post post = _dbContext.Posts.SingleOrDefault(p => p.Id == id)
+        Post post = _dbContext.Posts.SingleOrDefault(p => p.Id == id);
 
-        _dbContext.Posts.Add(post);
+        _dbContext.Posts.Remove(post);
         _dbContext.SaveChanges();
-        return CreatedAtAction(nameof(GetById), new { id = post.Id }, post);
+        return NoContent();
     }
 }
