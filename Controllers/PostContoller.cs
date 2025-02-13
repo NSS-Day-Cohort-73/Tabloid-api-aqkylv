@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Net.NetworkInformation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -93,6 +94,17 @@ public class PostController : ControllerBase
             SubTitle = postDTO.SubTitle,
             IsApproved = true,
         };
+
+        _dbContext.Posts.Add(post);
+        _dbContext.SaveChanges();
+        return CreatedAtAction(nameof(GetById), new { id = post.Id }, post);
+    }
+
+    [HttpDelete]
+    //[Authorize]
+    public IActionResult Delete(int id)
+    {
+        Post post = _dbContext.Posts.SingleOrDefault(p => p.Id == id)
 
         _dbContext.Posts.Add(post);
         _dbContext.SaveChanges();
