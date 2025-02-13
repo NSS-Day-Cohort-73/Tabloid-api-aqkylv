@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tabloid.Data;
@@ -44,19 +46,37 @@ public class PostController : ControllerBase
 
     [HttpGet("{id}")]
     //[Authorize]
-    public IActionResult GetPost(int id)
+    public IActionResult GetById(int id)
     {
-        var post = _dbContext
+        var postById = _dbContext
             .Posts.Include(p => p.Author)
-            .Include(p => p.Category)
+            .ThenInclude(a => a.IdentityUser)
             .SingleOrDefault(p => p.Id == id);
 
-        if (post == null)
+        if (postById == null)
         {
             return NotFound();
         }
+        var thisPost = new GetPostByIdDTO
+        {
+            Id = postById.Id,
+            Title = postById.Title,
+            PublishingDate = postById.PublishingDate,
+            Content = postById.Content,
+            HeaderImage = postById.HeaderImage,
+            AuthorId = postById.AuthorId,
+            Author = new UserProfileForPostByIdDTO
+            {
+                Id = postById.Author.Id,
+                IdentityUser = new IdentityUserDTO
+                {
+                    Id = postById.Author.IdentityUser.Id,
+                    UserName = postById.Author.IdentityUser.UserName,
+                },
+            },
+        };
 
-        return Ok(post);
+        return Ok(thisPost);
     }
 
     [HttpPost]
@@ -76,6 +96,6 @@ public class PostController : ControllerBase
 
         _dbContext.Posts.Add(post);
         _dbContext.SaveChanges();
-        return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
+        return CreatedAtAction(nameof(GetById), new { id = post.Id }, post);
     }
 }
