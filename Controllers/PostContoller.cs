@@ -100,11 +100,16 @@ public class PostController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = post.Id }, post);
     }
 
-    [HttpDelete]
+    [HttpDelete("{id}")]
     //[Authorize]
     public IActionResult Delete(int id)
     {
         Post post = _dbContext.Posts.SingleOrDefault(p => p.Id == id);
+
+        if (post == null)
+        {
+            return NotFound("There Post Id does not exist");
+        }
 
         _dbContext.Posts.Remove(post);
         _dbContext.SaveChanges();
