@@ -1,14 +1,15 @@
-using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Tabloid.Data;
+using System.Security.Claims;
+using System.Text;
 using Tabloid.Models;
+using Tabloid.Data;
 
 namespace Tabloid.Controllers;
+
 
 [ApiController]
 [Route("api/[controller]")]
@@ -80,30 +81,12 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpGet]
-    [Route("logout")]
-    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
-    public IActionResult Logout()
-    {
-        try
-        {
-            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).Wait();
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500);
-        }
-    }
-
     [HttpGet("Me")]
     [Authorize]
     public IActionResult Me()
     {
         var identityUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var profile = _dbContext.UserProfiles.SingleOrDefault(up =>
-            up.IdentityUserId == identityUserId
-        );
+        var profile = _dbContext.UserProfiles.SingleOrDefault(up => up.IdentityUserId == identityUserId);
         var roles = User.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();
         if (profile != null)
         {
@@ -121,7 +104,7 @@ public class AuthController : ControllerBase
         var user = new IdentityUser
         {
             UserName = registration.UserName,
-            Email = registration.Email,
+            Email = registration.Email
         };
 
         var password = Encoding
@@ -131,35 +114,28 @@ public class AuthController : ControllerBase
         var result = await _userManager.CreateAsync(user, password);
         if (result.Succeeded)
         {
-            _dbContext.UserProfiles.Add(
-                new UserProfile
-                {
-                    FirstName = registration.FirstName,
-                    LastName = registration.LastName,
-                    ImageLocation = registration.ImageLocation,
-                    CreateDateTime = DateTime.Now,
-                    IdentityUserId = user.Id,
-                }
-            );
+            _dbContext.UserProfiles.Add(new UserProfile
+            {
+                FirstName = registration.FirstName,
+                LastName = registration.LastName,
+                ImageLocation = registration.ImageLocation,
+                CreateDateTime = DateTime.Now,
+                IdentityUserId = user.Id,
+            });
             _dbContext.SaveChanges();
 
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-            };
-            var claimsIdentity = new ClaimsIdentity(
-                claims,
-                CookieAuthenticationDefaults.AuthenticationScheme
-            );
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.UserName.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email)
 
-            HttpContext
-                .SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity)
-                )
-                .Wait();
+                };
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(claimsIdentity)).Wait();
 
             return Ok();
         }
