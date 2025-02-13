@@ -251,6 +251,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     Content =
                         "Console.WriteLine(\"Hello World!\"); "
                         + "This is a simple introduction to C# programming...",
+                    IsApproved = true,
                 },
                 new Post
                 {
@@ -264,6 +265,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     Content =
                         "Dough, sauce, cheese — what else could you want? "
                         + "This post explores the perfect pizza recipe...",
+                    IsApproved = true,
                 },
                 new Post
                 {
@@ -275,6 +277,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     PublishingDate = new DateTime(2023, 5, 10),
                     HeaderImage = "https://picsum.photos/200/300?random=1",
                     Content = "Grab your boots! The Alps offer an unbeatable hiking experience...",
+                    IsApproved = true,
                 },
                 new Post
                 {
@@ -286,6 +289,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     PublishingDate = new DateTime(2023, 8, 1),
                     HeaderImage = "https://picsum.photos/200/300?random=2",
                     Content = "Let's break down the greatest rock concerts of the year...",
+                    IsApproved = false,
                 }
             );
 
