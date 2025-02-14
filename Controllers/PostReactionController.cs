@@ -19,12 +19,14 @@ public class PostReactionController : ControllerBase
 
     // GET: api/PostReaction?postId=3
     [HttpGet]
-    public IActionResult GetPostReactions([FromQuery] int postId)
+    public IActionResult GetPostReactions([FromQuery] int postId, [FromQuery] int reactionId)
     {
-        var reactions = _dbContext
+        var query = _dbContext
             .PostReactions.Include(pr => pr.Reaction)
             .Include(pr => pr.UserProfile)
-            .Where(pr => pr.PostId == postId)
+            .Where(pr => pr.PostId == postId && pr.ReactionId == reactionId);
+
+        var reactions = query
             .Select(pr => new PostReactionDTO
             {
                 Id = pr.Id,
