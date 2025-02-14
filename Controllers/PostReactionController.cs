@@ -55,7 +55,9 @@ public class PostReactionController : ControllerBase
     public IActionResult PostPostReaction(PostReactionDTO postReactionDTO)
     {
         var existingReaction = _dbContext.PostReactions.FirstOrDefault(pr =>
-            pr.PostId == postReactionDTO.PostId && pr.UserProfileId == postReactionDTO.UserProfileId
+            pr.PostId == postReactionDTO.PostId
+            && pr.UserProfileId == postReactionDTO.UserProfileId
+            && pr.ReactionId == postReactionDTO.ReactionId
         );
 
         if (existingReaction != null)
@@ -101,5 +103,35 @@ public class PostReactionController : ControllerBase
         _dbContext.SaveChanges();
 
         return NoContent();
+    }
+
+    // GET: api/PostReaction/all
+    [HttpGet("all")]
+    public IActionResult GetAllPostReactions()
+    {
+        var reactions = _dbContext
+            .PostReactions.Include(pr => pr.Reaction)
+            .Include(pr => pr.UserProfile)
+            .Select(pr => new PostReactionDTO
+            {
+                Id = pr.Id,
+                PostId = pr.PostId,
+                UserProfileId = pr.UserProfileId,
+                UserProfile = new UserProfileDTO
+                {
+                    Id = pr.UserProfile.Id,
+                    FullName = pr.UserProfile.FullName,
+                },
+                ReactionId = pr.ReactionId,
+                Reaction = new ReactionDTO
+                {
+                    Id = pr.Reaction.Id,
+                    Name = pr.Reaction.Name,
+                    Icon = pr.Reaction.Icon,
+                },
+            })
+            .ToList();
+
+        return Ok(reactions);
     }
 }
