@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Net.NetworkInformation;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -78,6 +79,30 @@ public class PostController : ControllerBase
         };
 
         return Ok(thisPost);
+    }
+
+    [HttpGet("my-posts")]
+    public IActionResult GetMyPosts()
+    {
+        string identityUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var posts = _dbContext
+            .Posts.Where(p => p.Author.IdentityUserId == identityUserId)
+            .Include(p => p.Author)
+            .Include(p => p.Category)
+            .OrderByDescending(p => p.PublishingDate)
+            .Select(p => new GetPostListDTO
+            {
+                Id = p.Id,
+                Title = p.Title,
+                PublishingDate = p.PublishingDate,
+                IsApproved = p.IsApproved,
+                Author = new UserProfileDTO { Id = p.Author.Id, FullName = p.Author.FullName },
+                Category = new CategoryDTO { Id = p.Category.Id, Name = p.Category.Name },
+            })
+            .ToList();
+
+        return Ok(posts);
     }
 
     [HttpPost]
