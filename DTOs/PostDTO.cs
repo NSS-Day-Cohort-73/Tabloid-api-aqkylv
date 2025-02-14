@@ -27,9 +27,9 @@ public class PostDTO
 
     public int ReadTime { get; set; }
 
-    public List<CommentDTO> Comments = new();
-    public List<ReactionDTO> Reactions = new();
-    public List<TagDTO> Tags = new();
+    public List<CommentDTO> Comments { get; set; } = new();
+    public List<ReactionDTO> Reactions { get; set; } = new();
+    public List<TagDTO> Tags { get; set; } = new();
 
     public bool IsApproved { get; set; } = false;
 }
