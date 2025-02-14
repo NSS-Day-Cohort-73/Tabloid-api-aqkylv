@@ -23,23 +23,53 @@ public class PostController : ControllerBase
     }
 
     [HttpGet]
-    //[Authorize]
+    [Authorize]
     public IActionResult Get()
     {
         var posts = _dbContext
             .Posts.Include(p => p.Author)
             .Include(p => p.Category)
-            .Where(p => p.IsApproved == true)
-            .Where(p => p.PublishingDate < DateTime.Now)
+            .Include(p => p.PostReactions)
+            .ThenInclude(pr => pr.Reaction)
+            .Include(p => p.Tags)
+            .Include(p => p.Comments)
+            .Where(p => p.IsApproved == true && p.PublishingDate < DateTime.Now)
             .OrderByDescending(p => p.PublishingDate)
-            .Select(p => new GetPostListDTO
+            .Select(p => new PostDTO
             {
                 Id = p.Id,
                 Title = p.Title,
+                SubTitle = p.SubTitle,
                 PublishingDate = p.PublishingDate,
                 IsApproved = p.IsApproved,
+                ReadTime = p.ReadTime,
                 Author = new UserProfileDTO { Id = p.Author.Id, FullName = p.Author.FullName },
                 Category = new CategoryDTO { Id = p.Category.Id, Name = p.Category.Name },
+                Content = p.Content,
+                HeaderImage = p.HeaderImage,
+                Comments = p
+                    .Comments.Select(c => new CommentDTO
+                    {
+                        Id = c.Id,
+                        Subject = c.Subject,
+                        Content = c.Content,
+                        CreationDate = c.CreationDate,
+                        Author = new UserProfileDTO
+                        {
+                            Id = c.Author.Id,
+                            FullName = c.Author.FullName,
+                        },
+                    })
+                    .ToList(),
+                Reactions = p
+                    .PostReactions.Select(pr => new ReactionDTO
+                    {
+                        Id = pr.Reaction.Id,
+                        Name = pr.Reaction.Name,
+                        Icon = pr.Reaction.Icon,
+                    })
+                    .ToList(),
+                Tags = p.Tags.Select(t => new TagDTO { Id = t.Id, Name = t.Name }).ToList(),
             })
             .ToList();
 
@@ -47,7 +77,7 @@ public class PostController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    //[Authorize]
+    [Authorize]
     public IActionResult GetById(int id)
     {
         var postById = _dbContext
