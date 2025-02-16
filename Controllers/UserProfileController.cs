@@ -149,7 +149,6 @@ public class UserProfileController : ControllerBase
     //[Authorize]
     public IActionResult GetUserProfilesPost(int id)
     {
-
         var posts = _dbContext
             .Posts.Include(p => p.Author)
             .Include(p => p.Category)
@@ -169,5 +168,27 @@ public class UserProfileController : ControllerBase
             .ToList();
 
         return Ok(posts);
+    }
+
+    [HttpPut("{id}/image")]
+    [Authorize]
+    public IActionResult UpdateUserProfileImage(int id, [FromBody] UserProfileDTO dto)
+    {
+        // 1. Find the user by ID
+        var userProfile = _dbContext.UserProfiles.SingleOrDefault(up => up.Id == id);
+
+        if (userProfile == null)
+        {
+            return NotFound("UserProfile not found.");
+        }
+
+        // 2. Update only the ImageLocation property
+        userProfile.ImageLocation = dto.ImageLocation;
+
+        // 3. Save changes
+        _dbContext.SaveChanges();
+
+        // 4. Return success response
+        return NoContent();
     }
 }
