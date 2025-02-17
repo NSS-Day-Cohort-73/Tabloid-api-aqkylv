@@ -17,33 +17,35 @@ public class PostTagController : ControllerBase
         _dbContext = context;
     }
 
-    // GET: api/PostTag?postId=3
-    [HttpGet]
-    public IActionResult GetPostTags([FromQuery] int postId)
-    {
-        var query = _dbContext.PostTags.Include(pt => pt.Tag).Where(pt => pt.PostId == postId);
-
-        var tags = query.Select(pt => new TagDTO { Id = pt.Tag.Id, Name = pt.Tag.Name }).ToList();
-
-        return Ok(tags);
-    }
-
     // GET: api/PostTag?postId=3&tagId=5
     [HttpGet]
-    public IActionResult GetPostTagById([FromQuery] int postId, [FromQuery] int tagId)
+    public IActionResult GetPostTags([FromQuery] int postId, [FromQuery] int? tagId = null)
     {
-        var postTag = _dbContext
-            .PostTags.Include(pt => pt.Tag)
-            .FirstOrDefault(pt => pt.PostId == postId && pt.TagId == tagId);
-
-        if (postTag == null)
+        if (tagId.HasValue)
         {
-            return NotFound("PostTag not found.");
+            var postTag = _dbContext
+                .PostTags.Include(pt => pt.Tag)
+                .FirstOrDefault(pt => pt.PostId == postId && pt.TagId == tagId.Value);
+
+            if (postTag == null)
+            {
+                return NotFound("PostTag not found.");
+            }
+
+            var tagDTO = new TagDTO { Id = postTag.Tag.Id, Name = postTag.Tag.Name };
+
+            return Ok(tagDTO);
         }
+        else
+        {
+            var query = _dbContext.PostTags.Include(pt => pt.Tag).Where(pt => pt.PostId == postId);
 
-        var tagDTO = new TagDTO { Id = postTag.Tag.Id, Name = postTag.Tag.Name };
+            var tags = query
+                .Select(pt => new TagDTO { Id = pt.Tag.Id, Name = pt.Tag.Name })
+                .ToList();
 
-        return Ok(tagDTO);
+            return Ok(tags);
+        }
     }
 
     // POST: api/PostTag
@@ -65,7 +67,7 @@ public class PostTagController : ControllerBase
         _dbContext.SaveChanges();
 
         return CreatedAtAction(
-            nameof(GetPostTagById),
+            nameof(GetPostTags),
             new { postId = postTag.PostId, tagId = postTag.TagId },
             postTag
         );
@@ -85,6 +87,43 @@ public class PostTagController : ControllerBase
         }
 
         _dbContext.PostTags.Remove(postTag);
+        _dbContext.SaveChanges();
+
+        return NoContent();
+    }
+
+    // PUT: api/PostTag?postId=3
+    [HttpPut]
+    public IActionResult UpdatePostTags(
+        [FromQuery] int postId,
+        [FromBody] List<PostTagDTO> postTags
+    )
+    {
+        var existingPostTags = _dbContext.PostTags.Where(pt => pt.PostId == postId).ToList();
+
+        // Find tags to remove
+        var tagsToRemove = existingPostTags
+            .Where(pt => !postTags.Any(dto => dto.TagId == pt.TagId))
+            .ToList();
+
+        // Find tags to add
+        var tagsToAdd = postTags
+            .Where(dto => !existingPostTags.Any(pt => pt.TagId == dto.TagId))
+            .Select(dto => new PostTag { PostId = postId, TagId = dto.TagId })
+            .ToList();
+
+        // Remove tags
+        if (tagsToRemove.Any())
+        {
+            _dbContext.PostTags.RemoveRange(tagsToRemove);
+        }
+
+        // Add new tags
+        if (tagsToAdd.Any())
+        {
+            _dbContext.PostTags.AddRange(tagsToAdd);
+        }
+
         _dbContext.SaveChanges();
 
         return NoContent();
