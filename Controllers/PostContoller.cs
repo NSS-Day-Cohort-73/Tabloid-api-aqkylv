@@ -23,7 +23,7 @@ public class PostController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
+    //[Authorize]
     public IActionResult Get()
     {
         var posts = _dbContext
@@ -79,7 +79,7 @@ public class PostController : ControllerBase
 
 
     [HttpGet("{id}")]
-    [Authorize]
+    //[Authorize]
     public IActionResult GetById(int id)
     {
         var postById = _dbContext
@@ -114,6 +114,7 @@ public class PostController : ControllerBase
     }
 
     [HttpGet("my-posts")]
+    //[Authorize]
     public IActionResult GetMyPosts()
     {
         string identityUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
