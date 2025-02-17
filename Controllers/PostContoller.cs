@@ -76,8 +76,6 @@ public class PostController : ControllerBase
         return Ok(posts);
     }
 
-
-
     [HttpGet("{id}")]
     [Authorize]
     public IActionResult GetById(int id)
@@ -149,6 +147,7 @@ public class PostController : ControllerBase
             AuthorId = postDTO.AuthorId,
             PublishingDate = DateTime.Now,
             SubTitle = postDTO.SubTitle,
+            HeaderImage = postDTO.HeaderImage,
             IsApproved = true,
         };
 
