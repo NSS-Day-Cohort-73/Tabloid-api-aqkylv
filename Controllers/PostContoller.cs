@@ -111,6 +111,18 @@ public class PostController : ControllerBase
         return Ok(thisPost);
     }
 
+    [HttpGet("explore/category/{id}")]
+    //[Authorize]
+    public IActionResult GetByCategoryId(int id)
+    {
+        var posts = _dbContext
+            .Posts.Include(p => p.Author)
+            .Include(p => p.Category)
+            .Where(p => p.CategoryId == id)
+            .ToList();
+        return Ok(posts);
+    }
+
     [HttpGet("createpost/{id}")]
     //[Authorize]
     public IActionResult GetByIdToEdit(int id)
@@ -118,7 +130,7 @@ public class PostController : ControllerBase
         var postById = _dbContext
             .Posts.Include(p => p.Author)
             .ThenInclude(a => a.IdentityUser)
-            .Include(p => p.Category) 
+            .Include(p => p.Category)
             .SingleOrDefault(p => p.Id == id);
 
         if (postById == null)
@@ -200,7 +212,8 @@ public class PostController : ControllerBase
     public IActionResult Put(int id, CreatePostDTO postDTO)
     {
         var postToUpdate = _dbContext.Posts.SingleOrDefault(p => p.Id == id);
-        if (postToUpdate == null) return NotFound();
+        if (postToUpdate == null)
+            return NotFound();
 
         postToUpdate.Title = postDTO.Title;
         postToUpdate.SubTitle = postDTO.SubTitle;
