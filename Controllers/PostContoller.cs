@@ -111,6 +111,44 @@ public class PostController : ControllerBase
         return Ok(thisPost);
     }
 
+    [HttpGet("createpost/{id}")]
+    //[Authorize]
+    public IActionResult GetByIdToEdit(int id)
+    {
+        var postById = _dbContext
+            .Posts.Include(p => p.Author)
+            .ThenInclude(a => a.IdentityUser)
+            .Include(p => p.Category) 
+            .SingleOrDefault(p => p.Id == id);
+
+        if (postById == null)
+        {
+            return NotFound();
+        }
+        var thisPost = new EditPostDTO
+        {
+            Id = postById.Id,
+            Title = postById.Title,
+            SubTitle = postById.SubTitle,
+            PublishingDate = postById.PublishingDate,
+            Category = new CategoryDTO { Id = postById.Category.Id, Name = postById.Category.Name },
+            Content = postById.Content,
+            HeaderImage = postById.HeaderImage,
+            AuthorId = postById.AuthorId,
+            Author = new UserProfileForPostByIdDTO
+            {
+                Id = postById.Author.Id,
+                IdentityUser = new IdentityUserDTO
+                {
+                    Id = postById.Author.IdentityUser.Id,
+                    UserName = postById.Author.IdentityUser.UserName,
+                },
+            },
+        };
+
+        return Ok(thisPost);
+    }
+
     [HttpGet("my-posts")]
     //[Authorize]
     public IActionResult GetMyPosts()
@@ -155,6 +193,23 @@ public class PostController : ControllerBase
         _dbContext.Posts.Add(post);
         _dbContext.SaveChanges();
         return CreatedAtAction(nameof(GetById), new { id = post.Id }, post);
+    }
+
+    [HttpPut("{id}")]
+    //[Authorize]
+    public IActionResult Put(int id, CreatePostDTO postDTO)
+    {
+        var postToUpdate = _dbContext.Posts.SingleOrDefault(p => p.Id == id);
+        if (postToUpdate == null) return NotFound();
+
+        postToUpdate.Title = postDTO.Title;
+        postToUpdate.SubTitle = postDTO.SubTitle;
+        postToUpdate.CategoryId = postDTO.CategoryId;
+        postToUpdate.Content = postDTO.Content;
+        postToUpdate.HeaderImage = postDTO.HeaderImage;
+
+        _dbContext.SaveChanges();
+        return Ok();
     }
 
     [HttpDelete("{id}")]
