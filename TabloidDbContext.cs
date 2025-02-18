@@ -288,6 +288,18 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                 new Post
                 {
                     Id = 4,
+                    AuthorId = 3, // Bob Williams
+                    Title = "Top 10 Rock Concerts of 2023",
+                    SubTitle = "Get Ready to Rock!",
+                    CategoryId = 4, // Music
+                    PublishingDate = new DateTime(2023, 8, 1),
+                    HeaderImage = "https://picsum.photos/200/300?random=2",
+                    Content = "Let's break down the greatest rock concerts of the year...",
+                    IsApproved = true,
+                },
+                new Post
+                {
+                    Id = 5,
                     AuthorId = 5, // Bob Williams
                     Title = "Top 10 Rock Concerts of 2023",
                     SubTitle = "Get Ready to Rock!",
@@ -295,7 +307,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     PublishingDate = new DateTime(2023, 8, 1),
                     HeaderImage = "https://picsum.photos/200/300?random=2",
                     Content = "Let's break down the greatest rock concerts of the year...",
-                    IsApproved = false,
+                    IsApproved = true,
                 }
             );
 
@@ -341,18 +353,21 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     Id = 1,
                     SubscriberId = 2, // John Doe
                     AuthorId = 3, // Jane Smith
+                    SubscriptionStartDate = new DateTime(2023, 8, 2)
                 },
                 new Subscription
                 {
                     Id = 2,
                     SubscriberId = 3, // Jane Smith
                     AuthorId = 2, // John Doe
+                    SubscriptionStartDate = new DateTime(2023, 9, 2)
                 },
                 new Subscription
                 {
                     Id = 3,
                     SubscriberId = 2, // John Doe
                     AuthorId = 4, // Alice Johnson
+                    SubscriptionStartDate = new DateTime(2023, 10, 2)
                 }
             );
 
