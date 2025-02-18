@@ -32,19 +32,29 @@ public class PostTagController : ControllerBase
                 return NotFound("PostTag not found.");
             }
 
-            var tagDTO = new TagDTO { Id = postTag.Tag.Id, Name = postTag.Tag.Name };
+            var postTagDTO = new PostTagDTO
+            {
+                PostId = postTag.PostId,
+                TagId = postTag.TagId,
+                Tag = new TagDTO { Id = postTag.Tag.Id, Name = postTag.Tag.Name },
+            };
 
-            return Ok(tagDTO);
+            return Ok(postTagDTO);
         }
         else
         {
             var query = _dbContext.PostTags.Include(pt => pt.Tag).Where(pt => pt.PostId == postId);
 
-            var tags = query
-                .Select(pt => new TagDTO { Id = pt.Tag.Id, Name = pt.Tag.Name })
+            var postTags = query
+                .Select(pt => new PostTagDTO
+                {
+                    PostId = pt.PostId,
+                    TagId = pt.TagId,
+                    Tag = new TagDTO { Id = pt.Tag.Id, Name = pt.Tag.Name },
+                })
                 .ToList();
 
-            return Ok(tags);
+            return Ok(postTags);
         }
     }
 
