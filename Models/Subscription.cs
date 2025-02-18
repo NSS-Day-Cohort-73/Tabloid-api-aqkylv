@@ -18,4 +18,7 @@ public class Subscription
 
     [ForeignKey("AuthorId")]
     public UserProfile Author { get; set; }
+
+    public DateTime SubscriptionStartDate { get; set; }
+
 }

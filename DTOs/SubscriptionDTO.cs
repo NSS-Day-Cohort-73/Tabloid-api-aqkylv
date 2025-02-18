@@ -15,4 +15,6 @@ public class SubscriptionDTO
 
     [ForeignKey("AuthorId")]
     public UserProfileDTO Author { get; set; }
+
+    public DateTime SubscriptionStartDate { get; set; }
 }
