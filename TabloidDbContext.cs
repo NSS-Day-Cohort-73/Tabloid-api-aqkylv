@@ -341,18 +341,21 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     Id = 1,
                     SubscriberId = 2, // John Doe
                     AuthorId = 3, // Jane Smith
+                    SubscriptionStartDate = new DateTime(2023, 8, 2)
                 },
                 new Subscription
                 {
                     Id = 2,
                     SubscriberId = 3, // Jane Smith
                     AuthorId = 2, // John Doe
+                    SubscriptionStartDate = new DateTime(2023, 9, 2)
                 },
                 new Subscription
                 {
                     Id = 3,
                     SubscriberId = 2, // John Doe
                     AuthorId = 4, // Alice Johnson
+                    SubscriptionStartDate = new DateTime(2023, 10, 2)
                 }
             );
 

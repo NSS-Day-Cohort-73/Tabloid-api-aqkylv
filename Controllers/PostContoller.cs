@@ -24,16 +24,22 @@ public class PostController : ControllerBase
 
     [HttpGet]
     //[Authorize]
-    public IActionResult Get()
+    public IActionResult Get([FromQuery] int? categoryId)
     {
-        var posts = _dbContext
+        var query = _dbContext
             .Posts.Include(p => p.Author)
             .Include(p => p.Category)
             .Include(p => p.PostReactions)
             .ThenInclude(pr => pr.Reaction)
             .Include(p => p.Tags)
             .Include(p => p.Comments)
-            .Where(p => p.IsApproved == true && p.PublishingDate < DateTime.Now)
+            .Where(p => p.IsApproved == true && p.PublishingDate < DateTime.Now);
+
+        if (categoryId.HasValue)
+        {
+            query = query.Where(p => p.CategoryId == categoryId.Value);
+        }
+        var posts = query
             .OrderByDescending(p => p.PublishingDate)
             .Select(p => new PostDTO
             {
@@ -110,19 +116,7 @@ public class PostController : ControllerBase
 
         return Ok(thisPost);
     }
-
-    [HttpGet("explore/category/{id}")]
-    //[Authorize]
-    public IActionResult GetByCategoryId(int id)
-    {
-        var posts = _dbContext
-            .Posts.Include(p => p.Author)
-            .Include(p => p.Category)
-            .Where(p => p.CategoryId == id)
-            .ToList();
-        return Ok(posts);
-    }
-
+    
     [HttpGet("createpost/{id}")]
     //[Authorize]
     public IActionResult GetByIdToEdit(int id)
