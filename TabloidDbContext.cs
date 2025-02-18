@@ -288,6 +288,18 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                 new Post
                 {
                     Id = 4,
+                    AuthorId = 3, // Bob Williams
+                    Title = "Top 10 Rock Concerts of 2023",
+                    SubTitle = "Get Ready to Rock!",
+                    CategoryId = 4, // Music
+                    PublishingDate = new DateTime(2023, 8, 1),
+                    HeaderImage = "https://picsum.photos/200/300?random=2",
+                    Content = "Let's break down the greatest rock concerts of the year...",
+                    IsApproved = true,
+                },
+                new Post
+                {
+                    Id = 5,
                     AuthorId = 5, // Bob Williams
                     Title = "Top 10 Rock Concerts of 2023",
                     SubTitle = "Get Ready to Rock!",
@@ -295,7 +307,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     PublishingDate = new DateTime(2023, 8, 1),
                     HeaderImage = "https://picsum.photos/200/300?random=2",
                     Content = "Let's break down the greatest rock concerts of the year...",
-                    IsApproved = false,
+                    IsApproved = true,
                 }
             );
 
