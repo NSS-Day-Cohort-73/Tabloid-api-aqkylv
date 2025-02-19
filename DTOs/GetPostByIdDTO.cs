@@ -18,6 +18,7 @@ public class GetPostByIdDTO
     public string HeaderImage { get; set; } = "";
 
     public string Content { get; set; }
+    public int ReadTime { get; set; }
 
 
 }
