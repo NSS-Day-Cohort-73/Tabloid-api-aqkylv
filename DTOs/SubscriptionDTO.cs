@@ -1,5 +1,6 @@
 namespace Tabloid.DTOs;
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 public class SubscriptionDTO
@@ -15,4 +16,6 @@ public class SubscriptionDTO
 
     [ForeignKey("AuthorId")]
     public UserProfileDTO Author { get; set; }
+
+    public DateTime SubscriptionStartDate { get; set; }
 }

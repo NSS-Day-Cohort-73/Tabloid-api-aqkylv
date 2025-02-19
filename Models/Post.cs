@@ -33,12 +33,23 @@ public class Post
     public string Content { get; set; }
 
     [NotMapped]
-    public int ReadTime => (int)Math.Ceiling((double)Content.Length / 500);
+    public int ReadTime => (int)Math.Ceiling((double)GetWordCount(Content) / 265);
 
-    public List<Comment> Comments = new();
+    private static int GetWordCount(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return 0;
 
-    public List<PostReaction> PostReactions = new();
-    public List<Tag> Tags = new();
+        return text.Split(
+            new[] { ' ', '\n', '\r', '\t' },
+            StringSplitOptions.RemoveEmptyEntries
+        ).Length;
+    }
+
+    public List<Comment> Comments { get; set; } = new();
+
+    public List<PostReaction> PostReactions { get; set; } = new();
+    public List<PostTag> PostTags { get; set; } = new();
 
     public bool IsApproved { get; set; } = false;
 }

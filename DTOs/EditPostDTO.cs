@@ -2,20 +2,18 @@ namespace Tabloid.DTOs;
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class PostDTO
+public class EditPostDTO
 {
     public int Id { get; set; }
 
     public int AuthorId { get; set; }
 
     [ForeignKey("AuthorId")]
-    public UserProfileDTO Author { get; set; }
+    public UserProfileForPostByIdDTO Author { get; set; }
 
     public string Title { get; set; }
 
     public string SubTitle { get; set; }
-
-    public int CategoryId { get; set; }
 
     public CategoryDTO Category { get; set; }
 
@@ -25,11 +23,5 @@ public class PostDTO
 
     public string Content { get; set; }
 
-    public int ReadTime { get; set; }
 
-    public List<CommentDTO> Comments { get; set; } = new();
-    public List<ReactionDTO> Reactions { get; set; } = new();
-    public List<TagDTO> Tags { get; set; } = new();
-
-    public bool IsApproved { get; set; } = false;
 }

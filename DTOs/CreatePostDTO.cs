@@ -2,14 +2,12 @@ namespace Tabloid.DTOs;
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class PostDTO
+public class CreatePostDTO
 {
     public int Id { get; set; }
 
     public int AuthorId { get; set; }
 
-    [ForeignKey("AuthorId")]
-    public UserProfileDTO Author { get; set; }
 
     public string Title { get; set; }
 
@@ -17,19 +15,12 @@ public class PostDTO
 
     public int CategoryId { get; set; }
 
-    public CategoryDTO Category { get; set; }
-
     public DateTime PublishingDate { get; set; }
 
-    public string HeaderImage { get; set; } = "";
+    public string? HeaderImage { get; set; } = "";
 
     public string Content { get; set; }
 
-    public int ReadTime { get; set; }
-
-    public List<CommentDTO> Comments { get; set; } = new();
-    public List<ReactionDTO> Reactions { get; set; } = new();
-    public List<TagDTO> Tags { get; set; } = new();
 
     public bool IsApproved { get; set; } = false;
 }

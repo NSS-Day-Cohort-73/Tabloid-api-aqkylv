@@ -19,6 +19,8 @@ builder
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Register your CloudinaryService
+builder.Services.AddScoped<CloudinaryService>();
 builder
     .Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(

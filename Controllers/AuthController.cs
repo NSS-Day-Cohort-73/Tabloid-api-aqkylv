@@ -80,22 +80,6 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpGet]
-    [Route("logout")]
-    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
-    public IActionResult Logout()
-    {
-        try
-        {
-            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).Wait();
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500);
-        }
-    }
-
     [HttpGet("Me")]
     [Authorize]
     public IActionResult Me()
