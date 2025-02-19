@@ -112,11 +112,12 @@ public class PostController : ControllerBase
                     UserName = postById.Author.IdentityUser.UserName,
                 },
             },
+            ReadTime = postById.ReadTime,
         };
 
         return Ok(thisPost);
     }
-    
+
     [HttpGet("createpost/{id}")]
     //[Authorize]
     public IActionResult GetByIdToEdit(int id)
