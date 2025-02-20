@@ -24,20 +24,25 @@ public class PostController : ControllerBase
 
     [HttpGet]
     //[Authorize]
-    public IActionResult Get([FromQuery] int? categoryId)
+    public IActionResult Get([FromQuery] int? categoryId, [FromQuery] int? tagId)
     {
         var query = _dbContext
             .Posts.Include(p => p.Author)
             .Include(p => p.Category)
             .Include(p => p.PostReactions)
             .ThenInclude(pr => pr.Reaction)
-            .Include(p => p.Tags)
+            .Include(p => p.PostTags)
+            .ThenInclude(pt => pt.Tag)
             .Include(p => p.Comments)
             .Where(p => p.IsApproved == true && p.PublishingDate < DateTime.Now);
 
         if (categoryId.HasValue)
         {
             query = query.Where(p => p.CategoryId == categoryId.Value);
+        }
+        if (tagId.HasValue)
+        {
+            query = query.Where(p => p.PostTags.Any(pt => pt.Tag.Id == tagId.Value));
         }
         var posts = query
             .OrderByDescending(p => p.PublishingDate)
@@ -75,7 +80,9 @@ public class PostController : ControllerBase
                         Icon = pr.Reaction.Icon,
                     })
                     .ToList(),
-                Tags = p.Tags.Select(t => new TagDTO { Id = t.Id, Name = t.Name }).ToList(),
+                Tags = p
+                    .PostTags.Select(pt => new TagDTO { Id = pt.Tag.Id, Name = pt.Tag.Name })
+                    .ToList(),
             })
             .ToList();
 
@@ -101,6 +108,7 @@ public class PostController : ControllerBase
             Title = postById.Title,
             PublishingDate = postById.PublishingDate,
             Content = postById.Content,
+            SubTitle = postById.SubTitle,
             HeaderImage = postById.HeaderImage,
             AuthorId = postById.AuthorId,
             Author = new UserProfileForPostByIdDTO

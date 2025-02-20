@@ -18,4 +18,7 @@ public class SubscriptionDTO
     public UserProfileDTO Author { get; set; }
 
     public DateTime SubscriptionStartDate { get; set; }
+
+    public DateTime? SubscriptionEndDate { get; set; }
+
 }

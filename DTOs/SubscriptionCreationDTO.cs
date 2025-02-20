@@ -9,4 +9,5 @@ public class SubscriptionCreationDTO
     public int SubscriberId { get; set; }
 
     public int AuthorId { get; set; }
+
 }

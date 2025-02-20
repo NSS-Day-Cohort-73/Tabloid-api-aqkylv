@@ -134,7 +134,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     LastName = "Strator",
                     ImageLocation = "https://robohash.org/numquamutut.png?size=150x150&set=set1",
                     CreateDateTime = new DateTime(2022, 1, 25),
-                    IsActive = true
+                    IsActive = true,
                 },
                 new UserProfile
                 {
@@ -144,7 +144,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     LastName = "Doe",
                     ImageLocation = "https://robohash.org/nisiautemet.png?size=150x150&set=set1",
                     CreateDateTime = new DateTime(2023, 2, 2),
-                    IsActive = true
+                    IsActive = true,
                 },
                 new UserProfile
                 {
@@ -155,7 +155,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     ImageLocation =
                         "https://robohash.org/molestiaemagnamet.png?size=150x150&set=set1",
                     CreateDateTime = new DateTime(2022, 3, 15),
-                    IsActive = true
+                    IsActive = true,
                 },
                 new UserProfile
                 {
@@ -166,7 +166,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     ImageLocation =
                         "https://robohash.org/deseruntutipsum.png?size=150x150&set=set1",
                     CreateDateTime = new DateTime(2023, 6, 10),
-                    IsActive = true
+                    IsActive = true,
                 },
                 new UserProfile
                 {
@@ -177,7 +177,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     ImageLocation =
                         "https://robohash.org/quiundedignissimos.png?size=150x150&set=set1",
                     CreateDateTime = new DateTime(2023, 5, 15),
-                    IsActive = true
+                    IsActive = true,
                 },
                 new UserProfile
                 {
@@ -187,7 +187,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     LastName = "Davis",
                     ImageLocation = "https://robohash.org/hicnihilipsa.png?size=150x150&set=set1",
                     CreateDateTime = new DateTime(2022, 10, 18),
-                    IsActive = true
+                    IsActive = true,
                 }
             );
 
@@ -353,21 +353,21 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     Id = 1,
                     SubscriberId = 2, // John Doe
                     AuthorId = 3, // Jane Smith
-                    SubscriptionStartDate = new DateTime(2023, 8, 2)
+                    SubscriptionStartDate = new DateTime(2023, 8, 2),
                 },
                 new Subscription
                 {
                     Id = 2,
                     SubscriberId = 3, // Jane Smith
                     AuthorId = 2, // John Doe
-                    SubscriptionStartDate = new DateTime(2023, 9, 2)
+                    SubscriptionStartDate = new DateTime(2023, 9, 2),
                 },
                 new Subscription
                 {
                     Id = 3,
-                    SubscriberId = 2, // John Doe
+                    SubscriberId = 1, // John Doe
                     AuthorId = 4, // Alice Johnson
-                    SubscriptionStartDate = new DateTime(2023, 10, 2)
+                    SubscriptionStartDate = new DateTime(2023, 10, 2),
                 }
             );
 
