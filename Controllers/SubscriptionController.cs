@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Tabloid.Data;
 using Tabloid.DTOs;
@@ -16,29 +15,30 @@ public class SubscriptionController : ControllerBase
     {
         _dbContext = context;
     }
-
-    [HttpGet]
-    //[Authorize]
-    public IActionResult GetSubsriptions()
+    
+    [HttpGet("check/{authorId}/{subscriberId}")]
+    public IActionResult CheckSubscription(int authorId, int subscriberId)
     {
-        var subscriptions = _dbContext
-            .Subscriptions.Select(s => new SubscriptionDTO
-            {
-                Id = s.Id,
-                AuthorId = s.AuthorId,
-                Author = new UserProfileDTO { Id = s.Author.Id, FullName = s.Author.FullName },
-                SubscriberId = s.SubscriberId,
-                Subscriber = new UserProfileDTO { Id = s.Author.Id, FullName = s.Author.FullName },
-            })
-            .ToList();
+        var subscription = _dbContext.Subscriptions.FirstOrDefault(s =>
+            s.AuthorId == authorId && s.SubscriberId == subscriberId
+        );
 
-        return Ok(subscriptions);
+        if (subscription == null)
+        {
+            return Ok(new { isSubscribed = false });
+        }
+
+        return Ok(new { isSubscribed = true, subscriptionId = subscription.Id });
     }
 
     [HttpPost]
-    //[Authorize]
     public IActionResult PostSubscription(SubscriptionCreationDTO subscription)
     {
+        if (subscription.AuthorId == subscription.SubscriberId)
+        {
+            return BadRequest(new { error = "Users cannot subscribe to themselves." });
+        }
+
         bool subscriptionExists = _dbContext.Subscriptions.Any(s =>
             s.SubscriberId == subscription.SubscriberId && s.AuthorId == subscription.AuthorId
         );
@@ -50,19 +50,39 @@ public class SubscriptionController : ControllerBase
 
         Subscription newSubscription = new Subscription
         {
-            Id = subscription.Id,
             SubscriberId = subscription.SubscriberId,
             AuthorId = subscription.AuthorId,
-            SubscriptionStartDate = DateTime.Now, 
+            SubscriptionStartDate = DateTime.Now,
         };
 
         _dbContext.Subscriptions.Add(newSubscription);
         _dbContext.SaveChanges();
 
         return CreatedAtAction(
-            nameof(PostSubscription),
-            new { id = newSubscription.Id },
-            newSubscription
+            nameof(CheckSubscription),
+            new
+            {
+                authorId = newSubscription.AuthorId,
+                subscriberId = newSubscription.SubscriberId,
+            },
+            new { subscriptionId = newSubscription.Id }
         );
+    }
+
+    [HttpDelete("{subscriptionId}")]
+    public IActionResult Unsubscribe(int subscriptionId)
+    {
+        Subscription subscription = _dbContext.Subscriptions.SingleOrDefault(s =>
+            s.Id == subscriptionId
+        );
+
+        if (subscription == null)
+        {
+            return NotFound();
+        }
+
+        _dbContext.Subscriptions.Remove(subscription);
+        _dbContext.SaveChanges();
+        return NoContent();
     }
 }

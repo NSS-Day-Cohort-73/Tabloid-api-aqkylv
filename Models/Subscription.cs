@@ -21,4 +21,5 @@ public class Subscription
 
     public DateTime SubscriptionStartDate { get; set; }
 
+    public DateTime? SubscriptionEndDate { get; set; }
 }
