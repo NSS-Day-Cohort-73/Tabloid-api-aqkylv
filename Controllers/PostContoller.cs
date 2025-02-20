@@ -120,6 +120,7 @@ public class PostController : ControllerBase
                     UserName = postById.Author.IdentityUser.UserName,
                 },
             },
+            ReadTime = postById.ReadTime,
         };
 
         return Ok(thisPost);
