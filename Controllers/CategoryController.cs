@@ -19,7 +19,6 @@ public class CategoryController : ControllerBase
 
     //GET all categories
     [HttpGet]
-    [Authorize(Roles = "Admin")]
     public IActionResult Get()
     {
         var categories = _context.Categories.OrderBy(c => c.Name);
