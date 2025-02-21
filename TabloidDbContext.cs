@@ -366,7 +366,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                 new Subscription
                 {
                     Id = 3,
-                    SubscriberId = 2, // John Doe
+                    SubscriberId = 1, // John Doe
                     AuthorId = 4, // Alice Johnson
                     SubscriptionStartDate = new DateTime(2023, 10, 2),
                 }

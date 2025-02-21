@@ -49,7 +49,7 @@ public class Post
     public List<Comment> Comments { get; set; } = new();
 
     public List<PostReaction> PostReactions { get; set; } = new();
-    public List<Tag> Tags { get; set; } = new();
+    public List<PostTag> PostTags { get; set; } = new();
 
     public bool IsApproved { get; set; } = false;
 }
