@@ -23,9 +23,16 @@ public class PostController : ControllerBase
     }
 
     [HttpGet]
-    //[Authorize]
-    public IActionResult Get([FromQuery] int? categoryId, [FromQuery] int? tagId)
+    [Authorize]
+    public IActionResult Get(
+        [FromQuery] int? categoryId,
+        [FromQuery] int? tagId,
+        [FromQuery] bool? approved
+    )
     {
+        bool isAdmin = User.IsInRole("Admin");
+        bool targetApproved = !(approved.HasValue && !approved.Value && isAdmin);
+
         var query = _dbContext
             .Posts.Include(p => p.Author)
             .Include(p => p.Category)
@@ -34,7 +41,8 @@ public class PostController : ControllerBase
             .Include(p => p.PostTags)
             .ThenInclude(pt => pt.Tag)
             .Include(p => p.Comments)
-            .Where(p => p.IsApproved == true && p.PublishingDate < DateTime.Now);
+            .Where(p => p.IsApproved == targetApproved)
+            .Where(p => p.PublishingDate < DateTime.Now);
 
         if (categoryId.HasValue)
         {
@@ -44,6 +52,7 @@ public class PostController : ControllerBase
         {
             query = query.Where(p => p.PostTags.Any(pt => pt.Tag.Id == tagId.Value));
         }
+
         var posts = query
             .OrderByDescending(p => p.PublishingDate)
             .Select(p => new PostDTO
@@ -90,7 +99,7 @@ public class PostController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    //[Authorize]
+    [Authorize]
     public IActionResult GetById(int id)
     {
         var postById = _dbContext
@@ -127,7 +136,7 @@ public class PostController : ControllerBase
     }
 
     [HttpGet("createpost/{id}")]
-    //[Authorize]
+    [Authorize]
     public IActionResult GetByIdToEdit(int id)
     {
         var postById = _dbContext
@@ -165,7 +174,7 @@ public class PostController : ControllerBase
     }
 
     [HttpGet("my-posts")]
-    //[Authorize]
+    [Authorize]
     public IActionResult GetMyPosts()
     {
         string identityUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -190,20 +199,33 @@ public class PostController : ControllerBase
     }
 
     [HttpPost]
-    //[Authorize]
+    [Authorize]
     public IActionResult Post(CreatePostDTO postDTO)
     {
-        Post post = new Post
+        var identityUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userProfile = _dbContext.UserProfiles.SingleOrDefault(up =>
+            up.IdentityUserId == identityUserId
+        );
+        if (userProfile == null)
+            return Unauthorized();
+
+        var post = new Post
         {
             Title = postDTO.Title,
             Content = postDTO.Content,
             CategoryId = postDTO.CategoryId,
-            AuthorId = postDTO.AuthorId,
+            AuthorId = userProfile.Id,
             PublishingDate = DateTime.Now,
             SubTitle = postDTO.SubTitle,
             HeaderImage = postDTO.HeaderImage,
-            IsApproved = true,
+            IsApproved = false,
         };
+
+        bool isAdmin = User.IsInRole("Admin");
+        if (isAdmin)
+        {
+            post.IsApproved = true;
+        }
 
         _dbContext.Posts.Add(post);
         _dbContext.SaveChanges();
@@ -211,7 +233,7 @@ public class PostController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    //[Authorize]
+    [Authorize]
     public IActionResult Put(int id, CreatePostDTO postDTO)
     {
         var postToUpdate = _dbContext.Posts.SingleOrDefault(p => p.Id == id);
@@ -229,7 +251,7 @@ public class PostController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    //[Authorize]
+    [Authorize]
     public IActionResult Delete(int id)
     {
         Post post = _dbContext.Posts.SingleOrDefault(p => p.Id == id);
@@ -242,5 +264,35 @@ public class PostController : ControllerBase
         _dbContext.Posts.Remove(post);
         _dbContext.SaveChanges();
         return NoContent();
+    }
+
+    [HttpPost("{id}/approve")]
+    [Authorize(Roles = "Admin")]
+    public IActionResult ApprovePost(int id)
+    {
+        var post = _dbContext.Posts.SingleOrDefault(p => p.Id == id);
+        if (post == null)
+        {
+            return NotFound("Post not found.");
+        }
+
+        post.IsApproved = true;
+        _dbContext.SaveChanges();
+        return Ok("Post approved.");
+    }
+
+    [HttpPost("{id}/unapprove")]
+    [Authorize(Roles = "Admin")]
+    public IActionResult UnapprovePost(int id)
+    {
+        var post = _dbContext.Posts.SingleOrDefault(p => p.Id == id);
+        if (post == null)
+        {
+            return NotFound("Post not found.");
+        }
+
+        post.IsApproved = false;
+        _dbContext.SaveChanges();
+        return Ok("Post unapproved.");
     }
 }
