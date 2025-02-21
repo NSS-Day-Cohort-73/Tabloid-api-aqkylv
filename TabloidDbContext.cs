@@ -18,6 +18,7 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
     public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<PostTag> PostTags { get; set; }
     public DbSet<PostReaction> PostReactions { get; set; }
+    public DbSet<AdminAction> AdminActions { get; set; }
 
     public TabloidDbContext(DbContextOptions<TabloidDbContext> context, IConfiguration config)
         : base(context)
@@ -406,5 +407,19 @@ public class TabloidDbContext : IdentityDbContext<IdentityUser>
                     TagId = 5, // Concerts
                 }
             );
+
+        modelBuilder
+            .Entity<AdminAction>()
+            .HasOne(a => a.Admin)
+            .WithMany()
+            .HasForeignKey(a => a.AdminId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder
+            .Entity<AdminAction>()
+            .HasOne(a => a.UserProfile)
+            .WithMany()
+            .HasForeignKey(a => a.UserProfileId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
