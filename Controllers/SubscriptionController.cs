@@ -1,4 +1,7 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing.Template;
+using Microsoft.EntityFrameworkCore;
 using Tabloid.Data;
 using Tabloid.DTOs;
 using Tabloid.Models;
@@ -15,7 +18,7 @@ public class SubscriptionController : ControllerBase
     {
         _dbContext = context;
     }
-    
+
     [HttpGet("check/{authorId}/{subscriberId}")]
     public IActionResult CheckSubscription(int authorId, int subscriberId)
     {
@@ -29,6 +32,20 @@ public class SubscriptionController : ControllerBase
         }
 
         return Ok(new { isSubscribed = true, subscriptionId = subscription.Id });
+    }
+
+    [HttpGet]
+    public IActionResult GetMySubscribedAuthors()
+    {
+        var identityUserIdMe = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var me = _dbContext.UserProfiles.Single(up => up.IdentityUserId == identityUserIdMe);
+
+        var MySubscriptions = _dbContext
+            .Subscriptions.Where(s => s.Subscriber.IdentityUserId == me.IdentityUserId).Include(s => s.Author)
+            .ToList();
+
+        return Ok(MySubscriptions);
     }
 
     [HttpPost]
