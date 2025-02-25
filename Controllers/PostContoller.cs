@@ -23,81 +23,104 @@ public class PostController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
-    public IActionResult Get(
-        [FromQuery] int? categoryId,
-        [FromQuery] int? tagId,
-        [FromQuery] bool? approved
-    )
+[Authorize]
+public IActionResult Get(
+    [FromQuery] int? categoryId,
+    [FromQuery] int? tagId,
+    [FromQuery] bool? approved,
+    [FromQuery] bool? subscribed = false
+)
+{
+    string currentUserIdentityId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var currentUserProfile = _dbContext.UserProfiles.SingleOrDefault(up =>
+        up.IdentityUserId == currentUserIdentityId
+    );
+    
+    if (currentUserProfile == null)
     {
-        bool isAdmin = User.IsInRole("Admin");
-        bool targetApproved = !(approved.HasValue && !approved.Value && isAdmin);
-
-        var query = _dbContext
-            .Posts.Include(p => p.Author)
-            .Include(p => p.Category)
-            .Include(p => p.PostReactions)
-            .ThenInclude(pr => pr.Reaction)
-            .Include(p => p.PostTags)
-            .ThenInclude(pt => pt.Tag)
-            .Include(p => p.Comments)
-            .Where(p => p.IsApproved == targetApproved)
-            .Where(p => p.PublishingDate < DateTime.Now);
-
-        if (categoryId.HasValue)
-        {
-            query = query.Where(p => p.CategoryId == categoryId.Value);
-        }
-        if (tagId.HasValue)
-        {
-            query = query.Where(p => p.PostTags.Any(pt => pt.Tag.Id == tagId.Value));
-        }
-
-        var posts = query
-            .OrderByDescending(p => p.PublishingDate)
-            .Select(p => new PostDTO
-            {
-                Id = p.Id,
-                Title = p.Title,
-                SubTitle = p.SubTitle,
-                PublishingDate = p.PublishingDate,
-                IsApproved = p.IsApproved,
-                ReadTime = p.ReadTime,
-                Author = new UserProfileDTO { Id = p.Author.Id, FullName = p.Author.FullName },
-                Category = new CategoryDTO { Id = p.Category.Id, Name = p.Category.Name },
-                Content = p.Content,
-                HeaderImage = p.HeaderImage,
-                Comments = p
-                    .Comments.Select(c => new CommentDTO
-                    {
-                        Id = c.Id,
-                        Subject = c.Subject,
-                        Content = c.Content,
-                        CreationDate = c.CreationDate,
-                        Author = new UserProfileDTO
-                        {
-                            Id = c.Author.Id,
-                            FullName = c.Author.FullName,
-                        },
-                    })
-                    .ToList(),
-                Reactions = p
-                    .PostReactions.Select(pr => new ReactionDTO
-                    {
-                        Id = pr.Reaction.Id,
-                        Name = pr.Reaction.Name,
-                        Icon = pr.Reaction.Icon,
-                    })
-                    .ToList(),
-                Tags = p
-                    .PostTags.Select(pt => new TagDTO { Id = pt.Tag.Id, Name = pt.Tag.Name })
-                    .ToList(),
-            })
-            .ToList();
-
-        return Ok(posts);
+        return Unauthorized();
     }
 
+    bool isAdmin = User.IsInRole("Admin");
+    bool targetApproved = !(approved.HasValue && !approved.Value && isAdmin);
+
+    var query = _dbContext
+        .Posts.Include(p => p.Author)
+        .Include(p => p.Category)
+        .Include(p => p.PostReactions)
+        .ThenInclude(pr => pr.Reaction)
+        .Include(p => p.PostTags)
+        .ThenInclude(pt => pt.Tag)
+        .Include(p => p.Comments)
+        .Where(p => p.IsApproved == targetApproved)
+        .Where(p => p.PublishingDate < DateTime.Now);
+
+    if (subscribed == true)
+    {
+        // Get IDs of all authors the current user is subscribed to
+        var subscribedAuthorIds = _dbContext.Subscriptions
+            .Where(s => s.SubscriberId == currentUserProfile.Id)
+            .Where(s => s.SubscriptionEndDate == null || s.SubscriptionEndDate > DateTime.Now)
+            .Select(s => s.AuthorId)
+            .ToList();
+
+        // Filter posts to only include those from subscribed authors
+        query = query.Where(p => subscribedAuthorIds.Contains(p.AuthorId));
+    }
+
+    if (categoryId.HasValue)
+    {
+        query = query.Where(p => p.CategoryId == categoryId.Value);
+    }
+    if (tagId.HasValue)
+    {
+        query = query.Where(p => p.PostTags.Any(pt => pt.Tag.Id == tagId.Value));
+    }
+
+    var posts = query
+        .OrderByDescending(p => p.PublishingDate)
+        .Select(p => new PostDTO
+        {
+            Id = p.Id,
+            Title = p.Title,
+            SubTitle = p.SubTitle,
+            PublishingDate = p.PublishingDate,
+            IsApproved = p.IsApproved,
+            ReadTime = p.ReadTime,
+            Author = new UserProfileDTO { Id = p.Author.Id, FullName = p.Author.FullName },
+            Category = new CategoryDTO { Id = p.Category.Id, Name = p.Category.Name },
+            Content = p.Content,
+            HeaderImage = p.HeaderImage,
+            Comments = p
+                .Comments.Select(c => new CommentDTO
+                {
+                    Id = c.Id,
+                    Subject = c.Subject,
+                    Content = c.Content,
+                    CreationDate = c.CreationDate,
+                    Author = new UserProfileDTO
+                    {
+                        Id = c.Author.Id,
+                        FullName = c.Author.FullName,
+                    },
+                })
+                .ToList(),
+            Reactions = p
+                .PostReactions.Select(pr => new ReactionDTO
+                {
+                    Id = pr.Reaction.Id,
+                    Name = pr.Reaction.Name,
+                    Icon = pr.Reaction.Icon,
+                })
+                .ToList(),
+            Tags = p
+                .PostTags.Select(pt => new TagDTO { Id = pt.Tag.Id, Name = pt.Tag.Name })
+                .ToList(),
+        })
+        .ToList();
+
+    return Ok(posts);
+}
     [HttpGet("{id}")]
     [Authorize]
     public IActionResult GetById(int id)
@@ -295,4 +318,5 @@ public class PostController : ControllerBase
         _dbContext.SaveChanges();
         return Ok("Post unapproved.");
     }
+
 }
